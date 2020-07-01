@@ -2,7 +2,6 @@ from process_data import load_and_process_data, prediction_to_csv
 import numpy as np
 import pandas as pd
 
-
 class Constant_Classifier():
     """Training a basic classifier class that extract the most common class"""
 
