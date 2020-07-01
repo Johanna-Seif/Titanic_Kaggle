@@ -24,6 +24,11 @@ class Constant_Classifier():
 # Loading preprocessed data
 dataset = load_and_process_data('../data/train.csv')
 
+##############################################
+#              Training data                 #
+##############################################
+
+# Training data with constant classifier
 constant_classifier = Constant_Classifier()
 # Compute most common value
 constant_classifier.find_most_common_output(dataset, 'Survived')
