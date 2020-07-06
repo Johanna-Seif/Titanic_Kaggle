@@ -4,6 +4,10 @@ import pandas as pd
 from sklearn import svm
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
+from sklearn.neural_network import MLPClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import GridSearchCV
+
 
 class Constant_Classifier():
     """Training a basic classifier class that extract the most common class"""
@@ -26,14 +30,14 @@ class Constant_Classifier():
 
 # Loading preprocessed data
 dataset = load_and_process_data('../data/train.csv')
-print(dataset.info())
+#print(dataset.info())
 
 # Defining features and labels
 features_cols = ['Pclass', 'Sex', 'Age', 'Parch', 'Fare']
 X = dataset.loc[:, features_cols]
 y = dataset.Survived
 # Dividing in training test set
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+X_train, X_cv, y_train, y_cv = train_test_split(X, y, test_size=0.3)
 
 ##############################################
 #              Training data                 #
@@ -50,20 +54,21 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 # output = constant_classifier.classify(data_test, 'PassengerId')
 # prediction_to_csv(output, '../data/constant_classifier.csv')
 
-# Training data with LogisticRegression
+# Training data with logistic regression
 #---------------------------------------
 
-clf_LR = LogisticRegression(random_state=0, C=1)
+# clf_LR = LogisticRegression(random_state=0, C=1)
 # clf_LR.fit(X_train, y_train)
 # print(clf_LR.score(X_train, y_train))
-# print(clf_LR.score(X_test, y_test))
-clf_LR.fit(X, y)
-# Loading data test
-X_test = load_and_process_data('../data/test.csv')
-prediction = clf_LR.predict(X_test.loc[:, features_cols])
-id = X_test.PassengerId
+# print(clf_LR.score(X_cv, y_cv))
 
-prediction_to_csv(id, prediction, '../data/LR_classifier_submission.csv')
+# clf_LR.fit(X, y)
+# # Loading data test
+# X_test = load_and_process_data('../data/test.csv')
+# prediction = clf_LR.predict(X_test.loc[:, features_cols])
+# id = X_test.PassengerId
+#
+# prediction_to_csv(id, prediction, '../data/LR_classifier_submission.csv')
 
 # Training data with svm
 #------------------------------
@@ -71,4 +76,40 @@ prediction_to_csv(id, prediction, '../data/LR_classifier_submission.csv')
 # clf_SVM = svm.SVC(kernel='rbf')
 # clf_SVM.fit(X_train, y_train)
 # print(clf_SVM.score(X_train, y_train))
-# print(clf_SVM.score(X_test, y_test))
+# print(clf_SVM.score(X_cv, y_cv))
+
+# Training data with random forest
+#---------------------------------------
+
+# Grid search to tune parameters
+parameters = {'max_depth' : [2, 3, 4, 5, 6, 7, 8, 9, 10, 15], 'min_samples_leaf' : [1, 2, 3, 4, 6, 8, 10, 12, 14, 16]}
+rfc = RandomForestClassifier()
+clf_RF = GridSearchCV(rfc, parameters)
+clf_RF.fit(X, y)
+
+# print(pd.DataFrame(clf_RF.cv_results_))
+print(clf_RF.score(X, y))
+
+# Loading data test
+X_test = load_and_process_data('../data/test.csv')
+prediction = clf_RF.predict(X_test.loc[:, features_cols])
+id = X_test.PassengerId
+
+prediction_to_csv(id, prediction, '../data/RF_classifier_submission.csv')
+
+# Training data with NN
+# ------------------------------
+
+# clf_NN = MLPClassifier(solver='lbfgs', alpha=1e-7,
+#                         hidden_layer_sizes=(1000,))
+# clf_NN.fit(X_train, y_train)
+# print(clf_NN.score(X_train, y_train))
+# print(clf_NN.score(X_cv, y_cv))
+
+# clf_NN.fit(X, y)
+# # Loading data test
+# X_test = load_and_process_data('../data/test.csv')
+# prediction = clf_NN.predict(X_test.loc[:, features_cols])
+# id = X_test.PassengerId
+#
+# prediction_to_csv(id, prediction, '../data/NN_classifier_submission.csv')
