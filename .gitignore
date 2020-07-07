@@ -1,0 +1,3 @@
+# Ignore submission csv
+*_submission.csv
+*__pycache__*
