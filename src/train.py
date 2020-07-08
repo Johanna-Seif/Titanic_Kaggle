@@ -1,4 +1,5 @@
 from process_data import load_and_process_data, prediction_to_csv
+from visualisation import plot_learning_curve
 import numpy as np
 import pandas as pd
 
@@ -11,6 +12,13 @@ from sklearn.ensemble import RandomForestClassifier
 
 # Estimators
 from utils import EstimatorSelectionHelper
+
+# TODO:
+#   - Try drop out for neural networks
+#   - Verify that we have random starts
+#   - Try different learning rates
+#   - NN: tanh to have quicker descend
+#   - Stochastic descend
 
 #####################################
 #              Models               #
@@ -56,15 +64,25 @@ y = dataset.Survived
 helper = EstimatorSelectionHelper(models, params)
 helper.fit(X, y)
 helper.score_summary()
+# Creating dictionary of the best estimators
+estimators = {}
+for key in models:
+    estimators[key] = helper.grid_searches[key].best_estimator_
 
 # Loading data test
 X_test = load_and_process_data('../data/test.csv')
 id = X_test.PassengerId
 
 # # Predict for rbf
-# prediction = helper.grid_searches['rbf'].predict(X_test.loc[:, features_cols])
+# prediction = estimators['rbf'].predict(X_test.loc[:, features_cols])
 # prediction_to_csv(id, prediction, '../data/give_a_name_submission.csv')
 
 ##############################################
 #              Learning Curves               #
 ##############################################
+
+plt = plot_learning_curve(estimators,
+                          X,
+                          y,
+                          train_sizes=np.linspace(.1, 1.0, 10))
+plt.show()
