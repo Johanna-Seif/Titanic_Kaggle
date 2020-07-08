@@ -1,6 +1,11 @@
 import pandas as pd
 import numpy as np
 
+# TODO
+#   - dummy variables for strings
+#   - feature scaling
+#   - Adding polynomial features
+
 # Loading training set
 def load_and_process_data(file_path):
     ''' Load the training data and apply preprocessing '''
@@ -32,6 +37,7 @@ def load_and_process_data(file_path):
 
 
 def prediction_to_csv(id, prediction, file_path):
+    ''' Creating submission file '''
     # output_array =
     prediction = prediction.reshape((prediction.shape[0], 1))
     id = id.to_numpy().reshape((prediction.shape[0], 1))
