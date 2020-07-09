@@ -1,37 +1,68 @@
 import pandas as pd
 import numpy as np
+# Feature scaling
+from sklearn.preprocessing import StandardScaler
 
 # TODO
-#   - dummy variables for strings
-#   - feature scaling
 #   - Adding polynomial features
 
-# Loading training set
-def load_and_process_data(file_path):
-    ''' Load the training data and apply preprocessing '''
-    # Loading csv file
-    data = pd.read_csv(file_path, header=0)
-    print('Data loaded.')
+# Loading and processing training set
+def process_data(data):
+    ''' Apply preprocessing '''
 
-    # Processing data
-    # Taking off PassengerId, Name, Embarked, Ticket
-    del data['Name']
-    del data['Ticket']
-    del data['Embarked']
-    # Taking off SibSp to avoid redundancy
-    del data['SibSp']
+    ## Processing data
+
+    # Guessing missing values for Age
+    data['Age'] = data.groupby(['Pclass', 'Sex'])['Age'].apply(lambda x: x.fillna(x.median()))
+    # Guessing missing values for Fare
+    data['Fare'] = data.groupby(['Pclass', 'Sex'])['Fare'].apply(lambda x: x.fillna(x.median()))
+    # Guessing missing values for Embarked
+    data['Embarked'].fillna(data.Embarked.mode()[0], inplace = True)
+
     # Taking of Cabin because too sparse
     del data['Cabin']
+    # Taking off ticket, not sure of its use
+    del data['Ticket']
 
-    # Filling age and fare with the median
-    data['Age'].fillna(value=data['Age'].median(), inplace=True)
-    data['Fare'].fillna(value=data['Fare'].median(), inplace=True)
+    # Extracting title from the name
+    data['Title'] = data['Name'].apply(lambda x: x.split(', ')[1].split('. ')[0])
+    titles_dict = {
+        'Mr' : 'Mr',
+        'Mrs' : 'Mrs',
+        'Miss' : 'Miss',
+        'Master' : 'Master',
+        'Don' : 'Nobility',
+        'Rev' : 'Profession',
+        'Dr' : 'Profession',
+        'Mme' : 'Mrs',
+        'Ms' : 'Mrs',
+        'Major' : 'Profession',
+        'Lady' : 'Nobility',
+        'Sir' : 'Nobility',
+        'Mlle' : 'Miss',
+        'Col' : 'Profession',
+        'Capt' : 'Profession',
+        'the Countess' : 'Nobility',
+        'Jonkheer' : 'Nobility',
+        'Dona' : 'Nobility'
+    }
+    data.Title = data.Title.apply(lambda x : titles_dict[x])
+    # Drop Name
+    data.drop(columns=['Name'], inplace=True)
 
-    # Changing string to int in Sex
-    mymap = {'female' : 1, 'male' : 2}
-    data = data.applymap(lambda s: mymap.get(s) if s in mymap else s)
+    # Creating dummy features for Sex, Pclass and Embarked
+    data = pd.get_dummies(data, columns=['Sex'])
+    data = pd.get_dummies(data, columns=['Pclass'])
+    data = pd.get_dummies(data, columns=['Embarked'])
+    data = pd.get_dummies(data, columns=['Title'])
 
-    print('Data processed.')
+    # Feature scaling
+    scaler = StandardScaler()
+    data[['Age','Fare']] = scaler.fit_transform(data[['Age','Fare']])
+
+    # Verify missing values
+    missing_values = data.drop(columns=['Survived']).isna().sum().sum()
+    print(f'Processed everything. Missing values left: {missing_values}')
 
     return data
 
