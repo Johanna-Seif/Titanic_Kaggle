@@ -1,3 +1,5 @@
 # Ignore submission csv
 *_submission.csv
+*learning_curves*
 *__pycache__*
+*score_summary*
