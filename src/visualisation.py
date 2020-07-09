@@ -1,4 +1,4 @@
-from process_data import load_and_process_data
+from process_data import process_data
 import numpy as np
 import pandas as pd
 
@@ -9,15 +9,16 @@ import seaborn as sns
 # Learning Curves of the Models
 from sklearn.model_selection import learning_curve
 
+# TODO:
+#   - clean data exploration
+
 plt.close("all")
 
 ##########################################
 #           Data Exploration             #
 ##########################################
 
-def simple_visualisation():
-    # Loading preprocessed data
-    dataset = load_and_process_data('../data/train.csv')
+def simple_visualisation(dataset):
 
     print(dataset.info())
 
